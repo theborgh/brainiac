@@ -7,6 +7,7 @@ import Logo from './components/logo/Logo';
 import ImageLinkForm from './components/imageLinkForm/ImageLinkForm';
 import Rank from './components/rank/Rank';
 import Signin from './components/signin/Signin';
+import Register from './components/register/Register';
 import './App.css';
 
 // Instantiate a new Clarifai app by passing in your API key.
@@ -48,7 +49,8 @@ class App extends Component {
       input: '',
       imageURL: '',
       box: [],
-      route: 'signin' // Keeps track if what page the user is on
+      route: 'signin', // Keeps track if what page the user is on
+      isSignedIn: false
     }
   }
 
@@ -97,23 +99,34 @@ class App extends Component {
 
   onRouteChange = (route) => {
     this.setState({route: route});
+
+    if (route === 'signout') {
+      this.setState({isSignedIn: false});
+    } else if (route === 'home') {
+      this.setState({isSignedIn: true});
+    }
   }
 
 
   render() {
+    const {isSignedIn, imageURL, box} = this.state;
     return (
       <div className="App">
         <Particles className="particles" params={particleOptions} />
-        <Navigation onRouteChange={this.onRouteChange} />
+        <Navigation onRouteChange={this.onRouteChange} isSignedIn={isSignedIn} />
         {
-          this.state.route === 'signin'
-            ? <Signin onRouteChange={this.onRouteChange} />
-            : <div>
+          this.state.route === 'home'
+            ? <div>
                 <Logo />
                 <Rank />
                 <ImageLinkForm onInputChange={this.processInput} onSubmit={this.onSubmit} />
-                <FaceRecognition image={this.state.imageURL} box={this.state.box} />
+                <FaceRecognition image={imageURL} box={box} />
               </div>
+            : (
+              this.state.route === 'signin'
+              ? <Signin onRouteChange={this.onRouteChange} />
+              : <Register onRouteChange={this.onRouteChange} />
+            )
         }
       </div>
     );
