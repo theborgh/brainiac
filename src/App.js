@@ -45,20 +45,22 @@ class App extends Component {
     super();
     this.state = {
       input: '',
+      imageURL: ''
     }
   }
 
   processInput = (event) => {
-    console.log(event.target.value);
-
+    this.setState({input: event.target.value});    
   }
+  
+  onSubmit = () => {  
+    this.setState({imageURL: this.state.input});  
 
-  onSubmit = () => {      
       // Predict the contents of an image by passing in a URL.
       app.models.predict(Clarifai.FACE_DETECT_MODEL,
-         'https://images.pexels.com/photos/459634/pexels-photo-459634.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260')
+         this.state.input) // this.state.imageURL doesn't work because of how setState() works!
         .then(response => {
-          console.log(response);
+          console.log(response.outputs[0].data.regions[0].region_info.bounding_box);
         })
         .catch(err => {
           console.log(err);
@@ -75,7 +77,7 @@ class App extends Component {
         <Logo />
         <Rank />
         <ImageLinkForm onInputChange={this.processInput} onSubmit={this.onSubmit} />
-        <FaceRecognition image={'https://images.pexels.com/photos/459634/pexels-photo-459634.jpeg?auto=compress&cs=tinysrgb&h=750&w=1260'} />
+        <FaceRecognition image={this.state.imageURL} />
       </div>
     );
   }
