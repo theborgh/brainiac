@@ -45,7 +45,8 @@ class App extends Component {
     super();
     this.state = {
       input: '',
-      imageURL: ''
+      imageURL: '',
+      box: [],
     }
   }
 
@@ -53,21 +54,45 @@ class App extends Component {
     this.setState({input: event.target.value});    
   }
   
+  calculateFaceCoordinates = (data) => {
+    let res = [];
+
+    const inputImage = document.getElementById('inputImg');
+    const width = Number(inputImage.width);
+    const height = Number(inputImage.height);
+
+    for (let reg of data.outputs[0].data.regions) {
+
+      res.push({
+        topRow: height * reg.region_info.bounding_box.top_row,
+        bottomRow: height - height*reg.region_info.bounding_box.bottom_row,
+        leftCol: width * reg.region_info.bounding_box.left_col,
+        rightCol: width - width*reg.region_info.bounding_box.right_col
+      });
+    }
+
+    return res;
+  }
+
+  displayFaceBox = (res) => {
+    this.setState({box: res})
+  }
+
   onSubmit = () => {  
     this.setState({imageURL: this.state.input});  
 
       // Predict the contents of an image by passing in a URL.
       app.models.predict(Clarifai.FACE_DETECT_MODEL,
-         this.state.input) // this.state.imageURL doesn't work because of how setState() works!
-        .then(response => {
-          console.log(response.outputs[0].data.regions[0].region_info.bounding_box);
-        })
+        
+        // this.state.imageURL doesn't work because of how setState() works!
+        // See https://reactjs.org/docs/react-component.html#setstate
+        this.state.input) 
+        .then(response => this.displayFaceBox(this.calculateFaceCoordinates(response)))
         .catch(err => {
-          console.log(err);
+          console.log("There was an error:", err);
         });
-
-    console.log('click');
   }
+
 
   render() {
     return (
@@ -77,7 +102,7 @@ class App extends Component {
         <Logo />
         <Rank />
         <ImageLinkForm onInputChange={this.processInput} onSubmit={this.onSubmit} />
-        <FaceRecognition image={this.state.imageURL} />
+        <FaceRecognition image={this.state.imageURL} box={this.state.box} />
       </div>
     );
   }
