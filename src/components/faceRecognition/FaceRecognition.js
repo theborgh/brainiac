@@ -7,7 +7,6 @@ const FaceRecognition = ({image, box}) => {
       <div className='center ma'>
          <div className='absolute mt2'>
             <img id='inputImg' alt='' src={image} width='500px' height='auto' />
-            {console.log('box in faceRec: ', box)}
 
             { 
                box.length ? 

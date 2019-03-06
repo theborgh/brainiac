@@ -6,37 +6,38 @@ import Clarifai from 'clarifai';
 import Logo from './components/logo/Logo';
 import ImageLinkForm from './components/imageLinkForm/ImageLinkForm';
 import Rank from './components/rank/Rank';
+import Signin from './components/signin/Signin';
 import './App.css';
 
 // Instantiate a new Clarifai app by passing in your API key.
-const app = new Clarifai.App({apiKey: '7922370daa88442f9fc680ce97915902'});
+const app = new Clarifai.App({ apiKey: '7922370daa88442f9fc680ce97915902' });
 
-const particleOptions={
+const particleOptions = {
   particles: {
-     number:{
-        value:120,
-        density: {
-           enable:true,
-           value_area:800
-        }
-     },
-     color: {
-        value: "#ffffff"
-     },
+    number: {
+      value: 120,
+      density: {
+        enable: true,
+        value_area: 800
+      }
+    },
+    color: {
+      value: "#ffffff"
+    },
   },
   interactivity: {
-     detect_on: "window",
-     events: {
-        onhover: {
-           enable: true,
-           mode: "grab"
-        },
-        onclick: {
-           enable: true,
-           mode: "push"
-        },
-        resize: true
-     },
+    detect_on: "window",
+    events: {
+      onhover: {
+        enable: true,
+        mode: "grab"
+      },
+      onclick: {
+        enable: true,
+        mode: "push"
+      },
+      resize: true
+    },
   }
 };
 
@@ -47,13 +48,14 @@ class App extends Component {
       input: '',
       imageURL: '',
       box: [],
+      route: 'signin' // Keeps track if what page the user is on
     }
   }
 
   processInput = (event) => {
-    this.setState({input: event.target.value});    
+    this.setState({ input: event.target.value });
   }
-  
+
   calculateFaceCoordinates = (data) => {
     let res = [];
 
@@ -65,9 +67,9 @@ class App extends Component {
 
       res.push({
         topRow: height * reg.region_info.bounding_box.top_row,
-        bottomRow: height - height*reg.region_info.bounding_box.bottom_row,
+        bottomRow: height - height * reg.region_info.bounding_box.bottom_row,
         leftCol: width * reg.region_info.bounding_box.left_col,
-        rightCol: width - width*reg.region_info.bounding_box.right_col
+        rightCol: width - width * reg.region_info.bounding_box.right_col
       });
     }
 
@@ -75,22 +77,26 @@ class App extends Component {
   }
 
   displayFaceBox = (res) => {
-    this.setState({box: res})
+    this.setState({ box: res })
   }
 
-  onSubmit = () => {  
-    this.setState({imageURL: this.state.input});  
+  onSubmit = () => {
+    this.setState({ imageURL: this.state.input });
 
-      // Predict the contents of an image by passing in a URL.
-      app.models.predict(Clarifai.FACE_DETECT_MODEL,
-        
-        // this.state.imageURL doesn't work because of how setState() works!
-        // See https://reactjs.org/docs/react-component.html#setstate
-        this.state.input) 
-        .then(response => this.displayFaceBox(this.calculateFaceCoordinates(response)))
-        .catch(err => {
-          console.log("There was an error:", err);
-        });
+    // Predict the contents of an image by passing in a URL.
+    app.models.predict(Clarifai.FACE_DETECT_MODEL,
+
+      // this.state.imageURL doesn't work because of how setState() works!
+      // See https://reactjs.org/docs/react-component.html#setstate
+      this.state.input)
+      .then(response => this.displayFaceBox(this.calculateFaceCoordinates(response)))
+      .catch(err => {
+        console.log("There was an error:", err);
+      });
+  }
+
+  onRouteChange = (route) => {
+    this.setState({route: route});
   }
 
 
@@ -98,11 +104,17 @@ class App extends Component {
     return (
       <div className="App">
         <Particles className="particles" params={particleOptions} />
-        <Navigation />
-        <Logo />
-        <Rank />
-        <ImageLinkForm onInputChange={this.processInput} onSubmit={this.onSubmit} />
-        <FaceRecognition image={this.state.imageURL} box={this.state.box} />
+        <Navigation onRouteChange={this.onRouteChange} />
+        {
+          this.state.route === 'signin'
+            ? <Signin onRouteChange={this.onRouteChange} />
+            : <div>
+                <Logo />
+                <Rank />
+                <ImageLinkForm onInputChange={this.processInput} onSubmit={this.onSubmit} />
+                <FaceRecognition image={this.state.imageURL} box={this.state.box} />
+              </div>
+        }
       </div>
     );
   }
