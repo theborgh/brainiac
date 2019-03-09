@@ -50,7 +50,14 @@ class App extends Component {
       imageURL: '',
       box: [],
       route: 'signin', // Keeps track if what page the user is on
-      isSignedIn: false
+      isSignedIn: false,
+      user: {
+        id: 0,
+        name: '',
+        email: '',
+        entries: 0,
+        joined: ''
+      }
     }
   }
 
@@ -107,6 +114,15 @@ class App extends Component {
     }
   }
 
+  loadUser = newUser => {
+    this.setState({user: {
+      id: newUser.id,
+      name: newUser.name,
+      email: newUser.email,
+      entries: newUser.entries,
+      joined: newUser.joined
+    }});
+  }
 
   render() {
     const {isSignedIn, imageURL, box} = this.state;
@@ -125,7 +141,7 @@ class App extends Component {
             : (
               this.state.route === 'signin'
               ? <Signin onRouteChange={this.onRouteChange} />
-              : <Register onRouteChange={this.onRouteChange} />
+              : <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
             )
         }
       </div>
