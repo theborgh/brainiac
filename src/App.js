@@ -96,11 +96,13 @@ class App extends Component {
       this.state.input)
       .then(response => {
         if (response) { // got a response from the API
+          const facesFound = response.rawData.outputs[0].data.regions.length
           fetch('http://localhost:3000/image', {
             method: 'put',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
-              id: this.state.user.id
+              id: this.state.user.id,
+              facesFound: facesFound
             })
           })
             .then(response => response.json())
