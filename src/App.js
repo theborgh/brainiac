@@ -33,10 +33,6 @@ const particleOptions = {
         enable: true,
         mode: "grab"
       },
-      onclick: {
-        enable: true,
-        mode: "push"
-      },
       resize: true
     },
   }
@@ -89,7 +85,7 @@ class App extends Component {
     this.setState({ box: res })
   }
 
-  onSubmit = () => {
+  onPictureSubmit = () => {
     this.setState({ imageURL: this.state.input });
 
     // Predict the contents of an image by passing in a URL.
@@ -98,11 +94,28 @@ class App extends Component {
       // this.state.imageURL doesn't work because of how setState() works!
       // See https://reactjs.org/docs/react-component.html#setstate
       this.state.input)
-      .then(response => this.displayFaceBox(this.calculateFaceCoordinates(response)))
-      .catch(err => {
-        console.log("There was an error:", err);
-      });
-  }
+      .then(response => {
+        if (response) {
+          console.log('got a response from the API');
+          fetch('http://localhost:3000/image', {
+            method: 'put',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              id: this.state.user.id
+            })
+          })
+            .then(response => response.json())
+            .then(count => {
+              console.log('Updating entries count: ')
+              this.setState({user: {entries: count}});
+              console.log('updated')
+            })
+        } 
+        this.displayFaceBox(this.calculateFaceCoordinates(response))
+          .catch(err => {
+            console.log("There was an error:", err);
+          });
+  })}
 
   onRouteChange = (route) => {
     this.setState({route: route});
@@ -114,13 +127,13 @@ class App extends Component {
     }
   }
 
-  loadUser = newUser => {
+  loadUser = currentUser => {
     this.setState({user: {
-      id: newUser.id,
-      name: newUser.name,
-      email: newUser.email,
-      entries: newUser.entries,
-      joined: newUser.joined
+      id: currentUser.id,
+      name: currentUser.name,
+      email: currentUser.email,
+      entries: currentUser.entries,
+      joined: currentUser.joined
     }});
   }
 
@@ -134,13 +147,13 @@ class App extends Component {
           this.state.route === 'home'
             ? <div>
                 <Logo />
-                <Rank />
-                <ImageLinkForm onInputChange={this.processInput} onSubmit={this.onSubmit} />
+                <Rank name={this.state.user.name} entries={this.state.user.entries}/> 
+                <ImageLinkForm onInputChange={this.processInput} onPictureSubmit={this.onPictureSubmit} />
                 <FaceRecognition image={imageURL} box={box} />
               </div>
             : (
               this.state.route === 'signin'
-              ? <Signin onRouteChange={this.onRouteChange} />
+              ? <Signin loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
               : <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
             )
         }
