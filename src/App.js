@@ -95,8 +95,7 @@ class App extends Component {
       // See https://reactjs.org/docs/react-component.html#setstate
       this.state.input)
       .then(response => {
-        if (response) {
-          console.log('got a response from the API');
+        if (response) { // got a response from the API
           fetch('http://localhost:3000/image', {
             method: 'put',
             headers: {'Content-Type': 'application/json'},
@@ -106,9 +105,7 @@ class App extends Component {
           })
             .then(response => response.json())
             .then(count => {
-              console.log('Updating entries count: ')
-              this.setState({user: {entries: count}});
-              console.log('updated')
+              this.setState(Object.assign(this.state.user, {entries:count}));
             })
         } 
         this.displayFaceBox(this.calculateFaceCoordinates(response))
