@@ -14,9 +14,10 @@ import './App.css';
 const app = new Clarifai.App({ apiKey: '7922370daa88442f9fc680ce97915902' });
 
 const particleOptions = {
+  "fps_limit": 30,
   particles: {
     number: {
-      value: 120,
+      value: 80,
       density: {
         enable: true,
         value_area: 800
@@ -51,7 +52,7 @@ class App extends Component {
         id: 0,
         name: '',
         email: '',
-        entries: 0,
+        facecount: 0,
         joined: ''
       }
     }
@@ -107,7 +108,7 @@ class App extends Component {
           })
             .then(response => response.json())
             .then(count => {
-              this.setState(Object.assign(this.state.user, {entries:count}));
+              this.setState(Object.assign(this.state.user, {facecount:count}));
             })
         } 
         this.displayFaceBox(this.calculateFaceCoordinates(response))
@@ -127,11 +128,12 @@ class App extends Component {
   }
 
   loadUser = currentUser => {
+
     this.setState({user: {
       id: currentUser.id,
       name: currentUser.name,
       email: currentUser.email,
-      entries: currentUser.entries,
+      facecount: currentUser.facecount,
       joined: currentUser.joined
     }});
   }
@@ -140,13 +142,13 @@ class App extends Component {
     const {isSignedIn, imageURL, box} = this.state;
     return (
       <div className="App">
-        <Particles className="particles" params={particleOptions} />
+     {/*   <Particles className="particles" params={particleOptions} /> */}
         <Navigation onRouteChange={this.onRouteChange} isSignedIn={isSignedIn} />
         {
           this.state.route === 'home'
             ? <div>
                 <Logo />
-                <Rank name={this.state.user.name} entries={this.state.user.entries}/> 
+                <Rank name={this.state.user.name} facecount={this.state.user.facecount} /> 
                 <ImageLinkForm onInputChange={this.processInput} onPictureSubmit={this.onPictureSubmit} />
                 <FaceRecognition image={imageURL} box={box} />
               </div>
