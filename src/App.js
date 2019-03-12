@@ -39,6 +39,21 @@ const particleOptions = {
   }
 };
 
+const initialState = {
+  input: '',
+  imageURL: '',
+  box: [],
+  route: 'signin', // Keeps track if what page the user is on
+  isSignedIn: false,
+  user: {
+    id: 0,
+    name: '',
+    email: '',
+    facecount: 0,
+    joined: ''
+  }
+}
+
 class App extends Component {
   constructor() {
     super();
@@ -110,6 +125,7 @@ class App extends Component {
             .then(count => {
               this.setState(Object.assign(this.state.user, {facecount:count}));
             })
+            .catch(console.log);
         } 
         this.displayFaceBox(this.calculateFaceCoordinates(response))
           .catch(err => {
@@ -121,7 +137,7 @@ class App extends Component {
     this.setState({route: route});
 
     if (route === 'signout') {
-      this.setState({isSignedIn: false});
+      this.setState(initialState);
     } else if (route === 'home') {
       this.setState({isSignedIn: true});
     }
