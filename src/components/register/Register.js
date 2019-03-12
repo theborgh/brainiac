@@ -23,20 +23,23 @@ class Register extends React.Component {
   }
 
   onSubmitRegistration = () => {
+    const {registrationName, registrationEmail, registrationPassword} = this.state;
+
+    console.log('regName: ', registrationName, 'regMail: ', registrationEmail, 'regPass: ', registrationPassword);
     fetch('http://localhost:3000/register', {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
-        name: this.state.registrationName,
-        email: this.state.registrationEmail,
-        password: this.state.registrationPassword
+        name: registrationName,
+        email: registrationEmail,
+        password: registrationPassword
       })
     })
       .then(response => response.json())
       .then(user => {
-        console.log('output: ', user[0]);
+        console.log('user: ', user);
         if (user) {
-          this.props.loadUser(user[0]);
+          this.props.loadUser(user);
           this.props.onRouteChange('home');
         }
       });
