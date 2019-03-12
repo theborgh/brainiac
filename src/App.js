@@ -2,16 +2,12 @@ import React, { Component } from 'react';
 import Particles from 'react-particles-js';
 import Navigation from './components/navigation/Navigation';
 import FaceRecognition from './components/faceRecognition/FaceRecognition';
-import Clarifai from 'clarifai';
 import Logo from './components/logo/Logo';
 import ImageLinkForm from './components/imageLinkForm/ImageLinkForm';
 import Rank from './components/rank/Rank';
 import Signin from './components/signin/Signin';
 import Register from './components/register/Register';
 import './App.css';
-
-// Instantiate a new Clarifai app by passing in your API key.
-const app = new Clarifai.App({ apiKey: '7922370daa88442f9fc680ce97915902' });
 
 const particleOptions = {
   "fps_limit": 30,
@@ -103,13 +99,14 @@ class App extends Component {
 
   onPictureSubmit = () => {
     this.setState({ imageURL: this.state.input });
-
-    // Predict the contents of an image by passing in a URL.
-    app.models.predict(Clarifai.FACE_DETECT_MODEL,
-
-      // this.state.imageURL doesn't work because of how setState() works!
-      // See https://reactjs.org/docs/react-component.html#setstate
-      this.state.input)
+    fetch('http://localhost:3000/imageurl', {
+      method: 'post',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        input: this.state.input
+      })
+    })
+      .then(response => response.json())
       .then(response => {
         if (response) { // got a response from the API
           const facesFound = response.rawData.outputs[0].data.regions.length
@@ -128,9 +125,6 @@ class App extends Component {
             .catch(console.log);
         } 
         this.displayFaceBox(this.calculateFaceCoordinates(response))
-          .catch(err => {
-            console.log("There was an error:", err);
-          });
   })}
 
   onRouteChange = (route) => {
