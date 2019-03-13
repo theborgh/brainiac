@@ -8,6 +8,8 @@ import Rank from './components/rank/Rank';
 import Signin from './components/signin/Signin';
 import Register from './components/register/Register';
 import './App.css';
+import './config';
+import herokuURL from './config';
 
 const particleOptions = {
   "fps_limit": 30,
@@ -98,34 +100,46 @@ class App extends Component {
   }
 
   onPictureSubmit = () => {
-    this.setState({ imageURL: this.state.input });
-    fetch('http://localhost:3000/imageurl', {
-      method: 'post',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        input: this.state.input
+    if(this.state.input !== "") {
+      this.setState({ imageURL: this.state.input });
+      fetch(herokuURL + 'imageurl', {
+        method: 'post',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          input: this.state.input
+        })
       })
-    })
-      .then(response => response.json())
-      .then(response => {
-        if (response) { // got a response from the API
-          const facesFound = response.rawData.outputs[0].data.regions.length
-          fetch('http://localhost:3000/image', {
-            method: 'put',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-              id: this.state.user.id,
-              facesFound: facesFound
-            })
-          })
-            .then(response => response.json())
-            .then(count => {
-              this.setState(Object.assign(this.state.user, {facecount:count}));
-            })
-            .catch(console.log);
-        } 
-        this.displayFaceBox(this.calculateFaceCoordinates(response))
-  })}
+        .then(response => response.json())
+        .then(response => {
+          if (response) { // got a response from the API
+            let facesFound;
+            if(!response.rawData.outputs[0].data.regions) {
+              console.log('faces found = 0');
+              facesFound = 0;
+            } else {
+              facesFound = response.rawData.outputs[0].data.regions.length;
+              fetch(herokuURL + 'image', {
+                method: 'put',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                  id: this.state.user.id,
+                  facesFound: facesFound
+                })
+              })
+                .then(response => response.json())
+                .then(count => {
+                  this.setState(Object.assign(this.state.user, {facecount:count}));
+                })
+                .catch(console.log);
+                this.displayFaceBox(this.calculateFaceCoordinates(response));
+            }
+          } 
+    })} else {
+      // input string is empty
+      console.log('Error: the input string is empty');
+    }
+  }
+
 
   onRouteChange = (route) => {
     this.setState({route: route});

@@ -1,4 +1,5 @@
 import React from 'react';
+import herokuURL from './../../config';
 
 class Register extends React.Component {
   constructor(props) {
@@ -26,7 +27,7 @@ class Register extends React.Component {
     const {registrationName, registrationEmail, registrationPassword} = this.state;
 
     console.log('regName: ', registrationName, 'regMail: ', registrationEmail, 'regPass: ', registrationPassword);
-    fetch('http://localhost:3000/register', {
+    fetch(herokuURL + 'register', {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
