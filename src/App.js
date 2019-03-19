@@ -114,7 +114,6 @@ class App extends Component {
           if (response) { // got a response from the API
             let facesFound;
             if(!response.rawData.outputs[0].data.regions) {
-              console.log('faces found = 0');
               facesFound = 0;
             } else {
               facesFound = response.rawData.outputs[0].data.regions.length;

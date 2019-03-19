@@ -26,7 +26,6 @@ class Register extends React.Component {
   onSubmitRegistration = () => {
     const {registrationName, registrationEmail, registrationPassword} = this.state;
 
-    console.log('regName: ', registrationName, 'regMail: ', registrationEmail, 'regPass: ', registrationPassword);
     fetch(herokuURL + 'register', {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
